@@ -1,0 +1,36 @@
+apiVersion: devices.kubeedge.io/v1alpha2
+kind: Device
+metadata:
+  name: led-light-instance-01
+  labels:
+    description: LEDLight
+    model: led-light
+spec:
+  deviceModelRef:
+    name: led-light
+  protocol:
+    modbus:
+      slaveID: 1
+    common:
+      com:
+        serialPort: '1'
+       
+  nodeSelector:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: ''
+        operator: In
+        values:
+        - edge-pi          #pls give your edge node name
+status:
+  twins:
+    - propertyName: power-status
+      desired:
+        metadata:
+          type: string
+        value: 'OFF'
+    
+      reported:
+        metadata:
+          type: string
+        value: 'OFF'

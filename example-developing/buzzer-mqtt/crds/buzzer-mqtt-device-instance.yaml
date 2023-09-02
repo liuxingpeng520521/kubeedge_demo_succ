@@ -1,0 +1,25 @@
+apiVersion: devices.kubeedge.io/v1alpha2
+kind: Device
+metadata:
+  name: buzzer-instance-01
+  labels:
+    description: Buzzer
+    model: buzzer-mqtt
+spec:
+  deviceModelRef:
+    name: buzzer-mqtt
+  nodeSelector:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: ''
+        operator: In
+        values:
+        - edge-ema          #pls give your edge node name
+status:
+  twins:
+    - propertyName: power-status
+      desired:
+        metadata:
+          type: string
+        value: 'OFF'
+

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modbus-dmi-mapper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modbusmapper
+  template:
+    metadata:
+      labels:
+        app: modbusmapper
+    spec:
+      hostNetwork: true
+      containers:
+        - name: modbus-mapper-container
+          image: modbus-dmi-mapper:v1.0-linux-amd64
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: config-volume
+              mountPath: /opt/kubeedge/
+            - mountPath: /dev/ttyS0
+              name: modbus-dev0
+            - mountPath: /dev/ttyS1
+              name: modbus-dev1
+            - name: sock-path
+              mountPath: /etc/kubeedge
+      nodeSelector:
+        modbus: "true"
+      volumes:
+        - name: sock-path
+          hostPath:
+            path: /etc/kubeedge
+        - name: config-volume
+          configMap:
+            name: device-profile-config-test
+        - name: modbus-dev0
+          hostPath:
+            path: /dev/ttyS0
+        - name: modbus-dev1
+          hostPath:
+            path: /dev/ttyS1
+      restartPolicy: Always

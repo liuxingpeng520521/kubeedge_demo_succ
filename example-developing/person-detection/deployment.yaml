@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: kubeedge-person-detection-app
+  name: kubeedge-person-detection-app
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kubeedge-person-detection-app
+  template:
+    metadata:
+      labels:
+        k8s-app: kubeedge-person-detection-app
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      containers:
+      - name: kubeedge-person-detection-app
+        image: mixiaochao/kubeedge-person-detection-app
+        imagePullPolicy: Always
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      restartPolicy: Always
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubeedge-person-detection
+  namespace: default
+rules:
+- apiGroups: ["devices.kubeedge.io"]
+  resources: ["devices"]
+  verbs: ["get", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeedge-person-detection-rbac
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: default
+roleRef:
+  kind: Role
+  name: kubeedge-person-detection
+  apiGroup: rbac.authorization.k8s.io

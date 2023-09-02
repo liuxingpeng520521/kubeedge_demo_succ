@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buzzer-mqtt-mapper-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: buzzer-mqtt-mapper
+  template:
+    metadata:
+      labels:
+        app: buzzer-mqtt-mapper
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/hostname: edge-ema
+      containers:
+      - name: buzzer-mqtt-mapper-container
+        image: mixiaochao/buzzer-mqtt-mapper
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/kubeedge/
+      volumes:
+      - name: config-volume
+        configMap:
+          name: device-profile-config-edge-ema
+      restartPolicy: Always
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: buzzer-mqtt
+  namespace: default
+rules:
+- apiGroups: ["devices.kubeedge.io"]
+  resources: ["devices"]
+  verbs: ["get", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: buzzer-mqtt-rbac
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: default
+roleRef:
+  kind: Role
+  name: buzzer-mqtt
+  apiGroup: rbac.authorization.k8s.io
