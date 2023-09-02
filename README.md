@@ -10,5 +10,3 @@
 内含本项目尝试测试实例
 
 ### document：整理后的课程报告
-
-#kubeedge_demo_succ
